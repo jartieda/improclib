@@ -10,6 +10,21 @@ namespace ImProcLib
 {
     public class ImProc
     {
+        public class ConvMatrix
+        {
+            public int TopLeft;
+            public int TopMid;
+            public int TopRight;
+            public int MidLeft;
+            public int Pixel;
+            public int MidRight;
+            public int BottomLeft;
+            public int BottomMid;
+            public int BottomRight;
+            public int Factor;
+            public int Offset;
+        }
+
         static public Bitmap LoadImage(string filename)
         {
             Bitmap bp;
@@ -118,6 +133,295 @@ namespace ImProcLib
 
             return true;
         }
+        public static bool Reclass(Bitmap b, int classnum)
+        {
+            // GDI+ still lies to us - the return format is BGR, NOT RGB. 
+
+            //BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+            //   ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+                    ImageLockMode.ReadWrite, b.PixelFormat);
+            int stride = bmData.Stride;
+            System.IntPtr Scan0 = bmData.Scan0;
+            int nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format24bppRgb)
+                nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format8bppIndexed)
+                nbands = 1;
+            int c;
+            try
+            {
+                unsafe
+                {
+                    byte* p = (byte*)(void*)Scan0;
+                    int nOffset = stride - b.Width * nbands;
+                    int nWidth = b.Width * nbands;
+
+                    for (int y = 0; y < b.Height; ++y)
+                    {
+                        for (int x = 0; x < nWidth; ++x)
+                        {
+                            c = p[0] / classnum;
+                            p[0] = (byte)(c * (255 / classnum));
+                            //p[0] = (byte)(255 - p[0]);
+                            ++p;
+                        }
+                        p += nOffset;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("error escribiendo" + e.Message + " bandas " + nbands);
+                return false;
+            }
+
+            b.UnlockBits(bmData);
+
+            return true;
+        }
+        public static bool Threshold(Bitmap b, int limit)
+        {
+            // GDI+ still lies to us - the return format is BGR, NOT RGB. 
+
+            //BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+            //   ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+                    ImageLockMode.ReadWrite, b.PixelFormat);
+            int stride = bmData.Stride;
+            System.IntPtr Scan0 = bmData.Scan0;
+            int nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format24bppRgb)
+                nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format8bppIndexed)
+                nbands = 1;
+            int c;
+            try
+            {
+                unsafe
+                {
+                    byte* p = (byte*)(void*)Scan0;
+                    int nOffset = stride - b.Width * nbands;
+                    int nWidth = b.Width * nbands;
+
+                    for (int y = 0; y < b.Height; ++y)
+                    {
+                        for (int x = 0; x < nWidth; ++x)
+                        {
+                            if (p[0] > limit) p[0] = 255;
+                            else p[0] = 0;
+                            ++p;
+                        }
+                        p += nOffset;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("error escribiendo" + e.Message + " bandas " + nbands);
+                return false;
+            }
+
+            b.UnlockBits(bmData);
+
+            return true;
+        }
+
+        public static bool Add(Bitmap b, Bitmap a)
+        {
+            // GDI+ still lies to us - the return format is BGR, NOT RGB. 
+
+            //BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width,b.Height),
+            //   ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            if ((a.Width != b.Width) || (a.Height != b.Height))
+            {
+                return false;
+            }
+            BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+                    ImageLockMode.ReadWrite, b.PixelFormat);
+            BitmapData amData = a.LockBits(new Rectangle(0, 0, a.Width, a.Height),
+                    ImageLockMode.ReadWrite, a.PixelFormat);
+            int astride = bmData.Stride;
+            int bstride = amData.Stride;
+            System.IntPtr aScan0 = amData.Scan0;
+            System.IntPtr bScan0 = bmData.Scan0;
+            int nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format24bppRgb)
+                nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format8bppIndexed)
+                nbands = 1;
+            int c;
+            try
+            {
+                unsafe
+                {
+                    byte* ap = (byte*)(void*)aScan0;
+                    byte* bp = (byte*)(void*)bScan0;
+                    int bnOffset = bstride - b.Width * nbands;
+                    int bnWidth = b.Width * nbands;
+                    int anOffset = astride - a.Width * nbands;
+                    int anWidth = a.Width * nbands;
+
+                    for (int y = 0; y < b.Height; ++y)
+                    {
+                        for (int x = 0; x < bnWidth; ++x)
+                        {
+                            c = bp[0] + ap[0];
+                            if (c > 255) bp[0] = 255;
+                            else bp[0] = (byte)c;
+                            ++bp;
+                            ++ap;
+                        }
+                        bp += bnOffset;
+                        ap += anOffset;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("error escribiendo" + e.Message + " bandas " + nbands);
+                return false;
+            }
+
+            b.UnlockBits(bmData);
+            a.UnlockBits(amData);
+
+            return true;
+        }
+        public static bool Conv3x3(Bitmap b, ConvMatrix m)
+        {
+            if (0 == m.Factor)
+                return false;
+            Bitmap bSrc = (Bitmap)b.Clone();
+            BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+                ImageLockMode.ReadWrite, b.PixelFormat);
+            BitmapData bmSrc = bSrc.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+                ImageLockMode.ReadWrite, b.PixelFormat);
+
+            int stride = bmData.Stride;
+            int stride2 = stride * 2;
+            System.IntPtr Scan0 = bmData.Scan0;
+            System.IntPtr SrcScan0 = bmSrc.Scan0;
+            int nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format24bppRgb)
+                nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format8bppIndexed)
+                nbands = 1;
+            try
+            {
+
+                unsafe
+                {
+                    byte* p = (byte*)(void*)Scan0;
+                    byte* pSrc = (byte*)(void*)SrcScan0;
+                    int nOffset = stride - b.Width * nbands;
+                    int nWidth = b.Width - 2;
+                    int nHeight = b.Height - 2;
+                    int nPixel;
+                    for (int y = 0; y < nHeight; ++y)
+                    {
+                        for (int x = 0; x < nWidth; ++x)
+                        {
+                            for (int band = 0; band < nbands; band++)
+                            {
+                                nPixel = (((
+                                    (pSrc[band] * m.TopLeft) +
+                                    (pSrc[1 * nbands + band] * m.TopMid) +
+                                    (pSrc[2 * nbands + band] * m.TopRight) +
+                                    (pSrc[band + stride] * m.MidLeft) +
+                                    (pSrc[1 * nbands + band + stride] * m.Pixel) +
+                                   (pSrc[2 * nbands + band + stride] * m.MidRight) +
+                                    (pSrc[band + stride2] * m.BottomLeft) +
+                                    (pSrc[1 * nbands + band + stride2] * m.BottomMid) +
+                                    (pSrc[2 * nbands + band + stride2] * m.BottomRight)) / m.Factor) + m.Offset);
+                                if (nPixel < 0) nPixel = 0;
+                                if (nPixel > 255) nPixel = 255;
+                                p[1 * nbands + band + stride] = (byte)nPixel;
+                            }
+                            p += nbands;
+                            pSrc += nbands;
+                        }
+                        p += nOffset;
+                        pSrc += nOffset;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("error escribiendo" + e.Message + " bandas " + nbands);
+                return false;
+            }
+
+            b.UnlockBits(bmData);
+            bSrc.UnlockBits(bmSrc);
+            return true;
+        }
+        public static bool Dilate(Bitmap b)
+        {
+
+            Bitmap bSrc = (Bitmap)b.Clone();
+            BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+                ImageLockMode.ReadWrite, b.PixelFormat);
+            BitmapData bmSrc = bSrc.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+                ImageLockMode.ReadWrite, b.PixelFormat);
+
+            int stride = bmData.Stride;
+            int stride2 = stride * 2;
+            System.IntPtr Scan0 = bmData.Scan0;
+            System.IntPtr SrcScan0 = bmSrc.Scan0;
+            int nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format24bppRgb)
+                nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format8bppIndexed)
+                nbands = 1;
+            try
+            {
+
+                unsafe
+                {
+                    byte* p = (byte*)(void*)Scan0;
+                    byte* pSrc = (byte*)(void*)SrcScan0;
+                    int nOffset = stride - b.Width * nbands;
+                    int nWidth = b.Width - 2;
+                    int nHeight = b.Height - 2;
+                    int nPixel;
+                    for (int y = 0; y < nHeight; ++y)
+                    {
+                        for (int x = 0; x < nWidth; ++x)
+                        {
+                            for (int band = 0; band < nbands; band++)
+                            {
+                                if ((pSrc[band] > 0 || (pSrc[1 * nbands + band] > 0) || (pSrc[2 * nbands + band] > 0) ||
+                                    (pSrc[band + stride] > 0) || (pSrc[1 * nbands + band + stride] > 0) || (pSrc[2 * nbands + band + stride] > 0) ||
+                                    (pSrc[band + stride2] > 0) || (pSrc[1 * nbands + band + stride2] > 0) || (pSrc[2 * nbands + band + stride2] > 0)))
+                                {
+                                    nPixel = 255;
+                                }
+                                else
+                                {
+                                    nPixel = 0;
+                                }
+                                p[1 * nbands + band + stride] = (byte)nPixel;
+                            }
+                            p += nbands;
+                            pSrc += nbands;
+                        }
+                        p += nOffset;
+                        pSrc += nOffset;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("error escribiendo" + e.Message + " bandas " + nbands);
+                return false;
+            }
+
+            b.UnlockBits(bmData);
+            bSrc.UnlockBits(bmSrc);
+            return true;
+        }
+
         public static bool brightness(Bitmap b, int nBrightness)
         {
             // GDI+ still lies to us - the return format is BGR, NOT RGB. 
