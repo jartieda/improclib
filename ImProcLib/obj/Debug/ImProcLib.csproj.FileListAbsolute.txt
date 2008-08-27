@@ -3,3 +3,8 @@ C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\bin\Debug\ImProcLib.pdb
 C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\obj\Debug\ResolveAssemblyReference.cache
 C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\obj\Debug\ImProcLib.dll
 C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\obj\Debug\ImProcLib.pdb
+C:\programas\pesca\ImProcLibGC\ImProcLib\ImProcLib\bin\Debug\ImProcLib.dll
+C:\programas\pesca\ImProcLibGC\ImProcLib\ImProcLib\bin\Debug\ImProcLib.pdb
+C:\programas\pesca\ImProcLibGC\ImProcLib\ImProcLib\obj\Debug\ResolveAssemblyReference.cache
+C:\programas\pesca\ImProcLibGC\ImProcLib\ImProcLib\obj\Debug\ImProcLib.dll
+C:\programas\pesca\ImProcLibGC\ImProcLib\ImProcLib\obj\Debug\ImProcLib.pdb
