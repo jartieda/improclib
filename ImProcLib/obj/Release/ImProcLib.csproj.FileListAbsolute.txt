@@ -1,0 +1,10 @@
+C:\Documents and Settings\jatrigueros\Configuración local\Datos de programa\Temporary Projects\ImProcLib\obj\Release\ResolveAssemblyReference.cache
+C:\Documents and Settings\jatrigueros\Configuración local\Datos de programa\Temporary Projects\ImProcLib\bin\Release\ImProcLib.dll
+C:\Documents and Settings\jatrigueros\Configuración local\Datos de programa\Temporary Projects\ImProcLib\bin\Release\ImProcLib.pdb
+C:\Documents and Settings\jatrigueros\Configuración local\Datos de programa\Temporary Projects\ImProcLib\obj\Release\ImProcLib.dll
+C:\Documents and Settings\jatrigueros\Configuración local\Datos de programa\Temporary Projects\ImProcLib\obj\Release\ImProcLib.pdb
+C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\bin\Release\ImProcLib.dll
+C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\bin\Release\ImProcLib.pdb
+C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\obj\Release\ResolveAssemblyReference.cache
+C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\obj\Release\ImProcLib.dll
+C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\obj\Release\ImProcLib.pdb
