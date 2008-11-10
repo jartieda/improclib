@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C# Express 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImProcLib", "ImProcLib\ImProcLib.csproj", "{CA4A40C3-6B3E-4E44-9C8D-D2CA6C5CE61F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{B47276CB-4370-4933-997F-7604486433AC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CA4A40C3-6B3E-4E44-9C8D-D2CA6C5CE61F} = {CA4A40C3-6B3E-4E44-9C8D-D2CA6C5CE61F}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +18,10 @@ Global
 		{CA4A40C3-6B3E-4E44-9C8D-D2CA6C5CE61F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA4A40C3-6B3E-4E44-9C8D-D2CA6C5CE61F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA4A40C3-6B3E-4E44-9C8D-D2CA6C5CE61F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B47276CB-4370-4933-997F-7604486433AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B47276CB-4370-4933-997F-7604486433AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B47276CB-4370-4933-997F-7604486433AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B47276CB-4370-4933-997F-7604486433AC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
