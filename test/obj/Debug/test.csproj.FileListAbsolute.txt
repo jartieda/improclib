@@ -1,0 +1,10 @@
+C:\programas\pesca\sandbox\deps\SndBoxImProcLib\test\obj\Debug\ResolveAssemblyReference.cache
+C:\programas\pesca\sandbox\deps\SndBoxImProcLib\test\obj\Debug\test.Form1.resources
+C:\programas\pesca\sandbox\deps\SndBoxImProcLib\test\obj\Debug\test.Properties.Resources.resources
+C:\programas\pesca\sandbox\deps\SndBoxImProcLib\test\obj\Debug\test.csproj.GenerateResource.Cache
+C:\programas\pesca\sandbox\deps\SndBoxImProcLib\test\bin\Debug\test.exe
+C:\programas\pesca\sandbox\deps\SndBoxImProcLib\test\bin\Debug\test.pdb
+C:\programas\pesca\sandbox\deps\SndBoxImProcLib\test\bin\Debug\ImProcLib.dll
+C:\programas\pesca\sandbox\deps\SndBoxImProcLib\test\bin\Debug\ImProcLib.pdb
+C:\programas\pesca\sandbox\deps\SndBoxImProcLib\test\obj\Debug\test.exe
+C:\programas\pesca\sandbox\deps\SndBoxImProcLib\test\obj\Debug\test.pdb
