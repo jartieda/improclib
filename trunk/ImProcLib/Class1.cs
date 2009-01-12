@@ -36,7 +36,7 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Windows.Forms ;
+using System.Windows.Forms;
 using System.IO;
 using Exocortex.DSP;
 using System.Collections;
@@ -46,6 +46,23 @@ namespace ImProcLib
 {
     public class ImProc
     {
+        public class ComplexImage
+        {
+            public int Width;
+            public int Height;
+            public ComplexF[] data;
+            public ComplexImage(int w, int h)
+            {
+                Width = w;
+                Height = h; 
+                data = new ComplexF[Width * Height];
+            }
+            public ComplexImage()
+            {
+
+            }
+
+        }
         public class ConvMatrix
         {
             public int TopLeft;
@@ -63,10 +80,10 @@ namespace ImProcLib
         static public Bitmap LoadImage(string filename)
         {
             Bitmap bp;
-            bp = (Bitmap) Bitmap.FromFile(filename);
+            bp = (Bitmap)Bitmap.FromFile(filename);
             return bp;
         }
-        public static void SaveImage(Bitmap b,string filename)
+        public static void SaveImage(Bitmap b, string filename)
         {
             b.Save(filename);
         }
@@ -229,7 +246,6 @@ namespace ImProcLib
                 nbands = 3;
             if (b.PixelFormat == PixelFormat.Format8bppIndexed)
                 nbands = 1;
-            int c;
             try
             {
                 unsafe
@@ -508,7 +524,7 @@ namespace ImProcLib
 
             return true;
         }
-        public static bool Statistics(Bitmap b,ref int min ,ref int max, int excludefrom)
+        public static bool Statistics(Bitmap b, ref int min, ref int max, int excludefrom)
         {
             // GDI+ still lies to us - the return format is BGR, NOT RGB. 
 
@@ -537,7 +553,7 @@ namespace ImProcLib
                     {
                         for (int x = 0; x < nWidth; ++x)
                         {
-                            if (p[0] < min && p[0]>excludefrom ) min = p[0];
+                            if (p[0] < min && p[0] > excludefrom) min = p[0];
                             if (p[0] > max) max = p[0];
                             ++p;
                         }
@@ -555,28 +571,28 @@ namespace ImProcLib
 
             return true;
         }
-        public static Bitmap  ColorMap(Bitmap b,int min , int max,string CMapFilename)
+        public static Bitmap ColorMap(Bitmap b, int min, int max, string CMapFilename)
         {
             StreamReader re;
             try
             {
-                 re = File.OpenText(CMapFilename);
+                re = File.OpenText(CMapFilename);
             }
             catch (Exception e)
             {
-                System.Windows.Forms.MessageBox.Show("Error al abrir el fichero de color: " + CMapFilename+ " " + e.Message );
+                System.Windows.Forms.MessageBox.Show("Error al abrir el fichero de color: " + CMapFilename + " " + e.Message);
                 return b;
             }
             string input = null;
-            int[,] CMap=new int[256,3];
-            char[] separator=new char [1];
-            separator[0]= ' ';
+            int[,] CMap = new int[256, 3];
+            char[] separator = new char[1];
+            separator[0] = ' ';
 
             while ((input = re.ReadLine()) != null)
             {
                 try
                 {
-                    string[] cadenas = input.Split(separator,StringSplitOptions.RemoveEmptyEntries);
+                    string[] cadenas = input.Split(separator, StringSplitOptions.RemoveEmptyEntries);
                     CMap[int.Parse(cadenas[0]), 0] = int.Parse(cadenas[1]);
                     CMap[int.Parse(cadenas[0]), 1] = int.Parse(cadenas[2]);
                     CMap[int.Parse(cadenas[0]), 2] = int.Parse(cadenas[3]);
@@ -588,8 +604,8 @@ namespace ImProcLib
             }
 
 
-            Bitmap b_out=new Bitmap (b.Width,b.Height,PixelFormat.Format24bppRgb );
-            
+            Bitmap b_out = new Bitmap(b.Width, b.Height, PixelFormat.Format24bppRgb);
+
 
             //BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
             //   ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
@@ -608,7 +624,7 @@ namespace ImProcLib
                 nbands = 3;
             if (b.PixelFormat == PixelFormat.Format8bppIndexed)
                 nbands = 1;
-            int val=0;
+            int val = 0;
             try
             {
                 unsafe
@@ -621,10 +637,10 @@ namespace ImProcLib
 
                     int nWidth = b.Width * nbands;
                     int nWidth_out = b_out.Width * 3;
-                    
+
                     for (int y = 0; y < b.Height; ++y)
                     {
-                        for (int x = 0; x < b.Width ; ++x)
+                        for (int x = 0; x < b.Width; ++x)
                         {
                             if (p[0] > 3)
                             {
@@ -632,10 +648,10 @@ namespace ImProcLib
                             }
                             else val = p[0];
 
-                            p_out[0] = (byte)(CMap[val,0]);
-                            p_out[1] = (byte)(CMap[val,1]);
-                            p_out[2] = (byte)(CMap[val,2]);
-                            p_out+=3;
+                            p_out[0] = (byte)(CMap[val, 2]);
+                            p_out[1] = (byte)(CMap[val, 1]);
+                            p_out[2] = (byte)(CMap[val, 0]);
+                            p_out += 3;
                             p += nbands;
                         }
                         p += nOffset;
@@ -649,18 +665,62 @@ namespace ImProcLib
             }
 
             b.UnlockBits(bmData);
-
-            return b_out ;
+            
+            return b_out;
         }
-        public static Bitmap subset(Bitmap b,int top, int left, int height, int width)
+        public static Bitmap ColorMapIndexed(Bitmap b, int min, int max, string CMapFilename)
         {
-            Bitmap b_out = new Bitmap(width , height , PixelFormat.Format24bppRgb);
+            StreamReader re;
+            try
+            {
+                re = File.OpenText(CMapFilename);
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("Error al abrir el fichero de color: " + CMapFilename + " " + e.Message);
+                return b;
+            }
+            string input = null;
+            int[,] CMap = new int[256, 3];
+            char[] separator = new char[1];
+            separator[0] = ' ';
+
+            while ((input = re.ReadLine()) != null)
+            {
+                try
+                {
+                    string[] cadenas = input.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                    CMap[int.Parse(cadenas[0]), 0] = int.Parse(cadenas[1]);
+                    CMap[int.Parse(cadenas[0]), 1] = int.Parse(cadenas[2]);
+                    CMap[int.Parse(cadenas[0]), 2] = int.Parse(cadenas[3]);
+                }
+                catch (Exception e)
+                {
+                    System.Windows.Forms.MessageBox.Show(e.Message);
+                }
+            }
+            // check palette
+            System.Drawing.Imaging.ColorPalette cp = b.Palette;
+            // init palette
+            int val;
+            for (int i = 0; i < 256; i++)
+            {
+                val = (int)((i - min) * 255.0 / (max - min));
+                cp.Entries[i] = Color.FromArgb(CMap[val, 0], CMap[val, 1], CMap[val, 2]);
+            }
+            b.Palette = cp;
+            
+            return b;
+        }
+        public static Bitmap subset(Bitmap b, int top, int left, int height, int width)
+        {
+            Bitmap b_out = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
             //BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
             //   ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
             BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
                     ImageLockMode.ReadWrite, b.PixelFormat);
-            BitmapData bmData_out = b_out.LockBits(new Rectangle(0, 0,b_out.Width  ,b_out.Height ),
+            BitmapData bmData_out = b_out.LockBits(new Rectangle(0, 0, b_out.Width, b_out.Height),
                     ImageLockMode.ReadWrite, b_out.PixelFormat);
             int stride = bmData.Stride;
             int stride_out = bmData_out.Stride;
@@ -669,8 +729,8 @@ namespace ImProcLib
             System.IntPtr ScanOut = bmData_out.Scan0;
 
             int nbands = 3;
-            if (b.PixelFormat == PixelFormat .Format32bppRgb)
-                nbands=4;
+            if (b.PixelFormat == PixelFormat.Format32bppRgb)
+                nbands = 4;
             if (b.PixelFormat == PixelFormat.Format24bppRgb)
                 nbands = 3;
             if (b.PixelFormat == PixelFormat.Format8bppIndexed)
@@ -693,11 +753,11 @@ namespace ImProcLib
                     {
                         for (int x = 0; x < b_out.Width; ++x)
                         {
-                            p_out[0] = p[(x+left)*nbands+(y+top)*bmData.Stride];// (byte)(CMap[val, 0]);
-                            p_out[1] = p[(x+left)*nbands+(y+top)*bmData.Stride+1];// (byte)(CMap[val, 1]);
-                            p_out[2] = p[(x+left)*nbands+(y+top)*bmData.Stride+2];// (byte)(CMap[val, 2]);
+                            p_out[0] = p[(x + left) * nbands + (y + top) * bmData.Stride];// (byte)(CMap[val, 0]);
+                            p_out[1] = p[(x + left) * nbands + (y + top) * bmData.Stride + 1];// (byte)(CMap[val, 1]);
+                            p_out[2] = p[(x + left) * nbands + (y + top) * bmData.Stride + 2];// (byte)(CMap[val, 2]);
                             p_out += 3;
-                         // p += nbands;
+                            // p += nbands;
                         }
                         //p += nOffset;
                         p_out += nOffset_out;
@@ -719,25 +779,26 @@ namespace ImProcLib
             {
                 return null;
             }
-            int t = b.Height ;
-               t = t - 1;
-               t = t | (t >> 1);
-               t = t | (t >> 2);
-               t = t | (t >> 4);
-               t = t | (t >> 8);
-               t = t | (t >>16);
-             int height2= t + 1;
-               t= b.Width ;
-               t = t - 1;
-               t = t | (t >> 1);
-               t = t | (t >> 2);
-               t = t | (t >> 4);
-               t = t | (t >> 8);
-               t = t | (t >> 16);
-             int width2= t + 1;
+            int t = b.Height;
+            t = t - 1;
+            t = t | (t >> 1);
+            t = t | (t >> 2);
+            t = t | (t >> 4);
+            t = t | (t >> 8);
+            t = t | (t >> 16);
+            int height2 = t + 1;
+            t = b.Width;
+            t = t - 1;
+            t = t | (t >> 1);
+            t = t | (t >> 2);
+            t = t | (t >> 4);
+            t = t | (t >> 8);
+            t = t | (t >> 16);
+            int width2 = t + 1;
 
-            if ((height2 != b.Height ) ||(width2 != b.Width )){
-                Bitmap bout = new Bitmap(width2 ,height2 , b.PixelFormat );
+            if ((height2 != b.Height) || (width2 != b.Width))
+            {
+                Bitmap bout = new Bitmap(width2, height2, b.PixelFormat);
                 BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
                                                 ImageLockMode.ReadWrite, b.PixelFormat);
                 int stride = bmData.Stride;
@@ -772,7 +833,7 @@ namespace ImProcLib
                             {
                                 int apos = y * strideOut + x * nbandsOut;
                                 int pos = y * stride + x * nbands;
-                                for (int band = 0; band < nbands ; band++)
+                                for (int band = 0; band < nbands; band++)
                                 {
                                     pout[apos + band] = p[pos + band];
                                 }
@@ -788,11 +849,12 @@ namespace ImProcLib
                 b.UnlockBits(bmData);
                 bout.UnlockBits(bmDataOut);
                 return bout;
-            }else
+            }
+            else
             {
                 return b;
             }
-	}
+        }
         public static Bitmap Mult(Bitmap a, Bitmap b)
         {
             if (b == null)
@@ -803,80 +865,80 @@ namespace ImProcLib
             {
                 return null;
             }
-            
-            if ((a.Height  != b.Height) || (a.Width  != b.Width))
+
+            if ((a.Height != b.Height) || (a.Width != b.Width))
             {
                 return null;
             }
-                Bitmap bout = new Bitmap (b.Width ,b.Width ,b.PixelFormat );
+            Bitmap bout = new Bitmap(b.Width, b.Width, b.PixelFormat);
 
-                BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
-                                                ImageLockMode.ReadWrite, b.PixelFormat);
-                int bstride = bmData.Stride;
-                System.IntPtr bScan0 = bmData.Scan0;
-                int bnbands = 3;
-                if (b.PixelFormat == PixelFormat.Format24bppRgb)
-                    bnbands = 3;
-                if (b.PixelFormat == PixelFormat.Format8bppIndexed)
-                    bnbands = 1;
+            BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+                                            ImageLockMode.ReadWrite, b.PixelFormat);
+            int bstride = bmData.Stride;
+            System.IntPtr bScan0 = bmData.Scan0;
+            int bnbands = 3;
+            if (b.PixelFormat == PixelFormat.Format24bppRgb)
+                bnbands = 3;
+            if (b.PixelFormat == PixelFormat.Format8bppIndexed)
+                bnbands = 1;
 
-                BitmapData amData = a.LockBits(new Rectangle(0, 0, a.Width, a.Height),
-                                                    ImageLockMode.ReadWrite, a.PixelFormat);
-                int astride = amData.Stride;
-                System.IntPtr aScan0 = amData.Scan0;
-                int anbands = 3;
-                if (bout.PixelFormat == PixelFormat.Format24bppRgb)
-                    anbands = 3;
-                if (bout.PixelFormat == PixelFormat.Format8bppIndexed)
-                    anbands = 1;
+            BitmapData amData = a.LockBits(new Rectangle(0, 0, a.Width, a.Height),
+                                                ImageLockMode.ReadWrite, a.PixelFormat);
+            int astride = amData.Stride;
+            System.IntPtr aScan0 = amData.Scan0;
+            int anbands = 3;
+            if (bout.PixelFormat == PixelFormat.Format24bppRgb)
+                anbands = 3;
+            if (bout.PixelFormat == PixelFormat.Format8bppIndexed)
+                anbands = 1;
 
-                 BitmapData bmDataOut = bout.LockBits(new Rectangle(0, 0, bout.Width, bout.Height),
-                                                    ImageLockMode.ReadWrite, bout.PixelFormat);
-                int strideOut = bmDataOut.Stride;
-                System.IntPtr OutScan0 = bmDataOut.Scan0;
-                int nbandsOut = 3;
-                if (bout.PixelFormat == PixelFormat.Format24bppRgb)
-                    nbandsOut = 3;
-                if (bout.PixelFormat == PixelFormat.Format8bppIndexed)
-                    nbandsOut = 1;
-                try
+            BitmapData bmDataOut = bout.LockBits(new Rectangle(0, 0, bout.Width, bout.Height),
+                                               ImageLockMode.ReadWrite, bout.PixelFormat);
+            int strideOut = bmDataOut.Stride;
+            System.IntPtr OutScan0 = bmDataOut.Scan0;
+            int nbandsOut = 3;
+            if (bout.PixelFormat == PixelFormat.Format24bppRgb)
+                nbandsOut = 3;
+            if (bout.PixelFormat == PixelFormat.Format8bppIndexed)
+                nbandsOut = 1;
+            try
+            {
+                unsafe
                 {
-                    unsafe
+                    byte* bp = (byte*)(void*)bScan0;
+                    byte* ap = (byte*)(void*)aScan0;
+                    byte* pout = (byte*)(void*)OutScan0;
+                    for (int y = 0; y < b.Height; ++y)
                     {
-                        byte* bp = (byte*)(void*)bScan0;
-                        byte* ap = (byte*)(void*)aScan0;
-                        byte* pout = (byte*)(void*)OutScan0;
-                        for (int y = 0; y < b.Height; ++y)
+                        for (int x = 0; x < b.Width; ++x)
                         {
-                            for (int x = 0; x < b.Width; ++x)
+                            int apos = y * astride + x * anbands;
+                            for (int band = 0; band < anbands; band++)
                             {
-                                int apos = y * astride + x * anbands;
-                                for (int band = 0; band < anbands ; band++)
-                                {
-                                    pout[apos + band] =(byte) (ap[apos + band]*bp[apos+band]);
-                                }
+                                pout[apos + band] = (byte)(ap[apos + band] * bp[apos + band]);
                             }
                         }
                     }
                 }
-                catch (Exception e)
-                {
-                    System.Windows.Forms.MessageBox.Show("error escribiendo" + e.Message);
-                    return null;
-                }
-                b.UnlockBits(bmData);
-                bout.UnlockBits(bmDataOut);
-                return bout;            
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("error escribiendo" + e.Message);
+                return null;
+            }
+            b.UnlockBits(bmData);
+            bout.UnlockBits(bmDataOut);
+            return bout;
         }
         public static Bitmap Gausian(int size, double sigma, out double factor)
         {
-            Bitmap bout = new Bitmap(size,size,PixelFormat .Format8bppIndexed );
+            Bitmap bout = new Bitmap(size, size, PixelFormat.Format8bppIndexed);
             BitmapData bmDataOut = bout.LockBits(new Rectangle(0, 0, bout.Width, bout.Height),
                                                    ImageLockMode.ReadWrite, bout.PixelFormat);
             int strideOut = bmDataOut.Stride;
             System.IntPtr OutScan0 = bmDataOut.Scan0;
             int nbandsOut = 1;
-            factor=1;
+            factor = 1;
             try
             {
                 unsafe
@@ -885,24 +947,24 @@ namespace ImProcLib
                     for (int y = 0; y < bout.Height; ++y)
                     {
                         for (int x = 0; x < bout.Width; ++x)
-                        { 
+                        {
                             double xx = x - bout.Width / 2.0;
                             double yy = y - bout.Height / 2.0;
                             if ((y == 0) && (x == 0))
                             {
-                                factor = 1/((1 / (2 * Math.PI * sigma * sigma)) * Math.Exp(-(xx * xx + yy * yy) / (2 * sigma * sigma)));
+                                factor = 1 / ((1 / (2 * Math.PI * sigma * sigma)) * Math.Exp(-(xx * xx + yy * yy) / (2 * sigma * sigma)));
                             }
                             int apos = y * strideOut + x * nbandsOut;
-                            for (int band = 0; band < nbandsOut ; band++)
+                            for (int band = 0; band < nbandsOut; band++)
                             {
-                                pout[apos + band] = (byte)(factor*((1 / (2 * Math.PI * sigma * sigma)) * Math.Exp(-(xx * xx + yy * yy) / (2 * sigma * sigma))));
+                                pout[apos + band] = (byte)(factor * ((1 / (2 * Math.PI * sigma * sigma)) * Math.Exp(-(xx * xx + yy * yy) / (2 * sigma * sigma))));
                             }
                         }
                     }
-                } 
+                }
                 bout.UnlockBits(bmDataOut);
                 return bout;
-               
+
             }
             catch (Exception e)
             {
@@ -910,26 +972,20 @@ namespace ImProcLib
                 bout.UnlockBits(bmDataOut);
                 return null;
             }
-            
+
         }
-        public static Bitmap ForwardFFT(Bitmap b)
+        public static ComplexImage ForwardFFT(Bitmap b)
         {
             if (b == null)
             {
                 return null;
             }
-            Bitmap b_out = new Bitmap(b.Width , b.Height , PixelFormat.Format8bppIndexed );
 
             float scale = 1f / (float)Math.Sqrt(b.Width * b.Height);
             BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
-                   ImageLockMode.ReadWrite, b.PixelFormat);
-            BitmapData bmData_out = b_out.LockBits(new Rectangle(0, 0, b_out.Width, b_out.Height),
-                    ImageLockMode.ReadWrite, b_out.PixelFormat);
+                                           ImageLockMode.ReadWrite, b.PixelFormat);
             int stride = bmData.Stride;
-            int stride_out = bmData_out.Stride;
-
             System.IntPtr Scan0 = bmData.Scan0;
-            System.IntPtr ScanOut = bmData_out.Scan0;
 
             int nbands = 3;
             if (b.PixelFormat == PixelFormat.Format32bppRgb)
@@ -939,26 +995,27 @@ namespace ImProcLib
             if (b.PixelFormat == PixelFormat.Format8bppIndexed)
                 nbands = 1;
             int val = 0;
+            ComplexImage cimg;
             try
             {
                 unsafe
                 {
                     byte* p = (byte*)(void*)Scan0;
-                    byte* p_out = (byte*)(void*)ScanOut;
-
+                    
                     int nOffset = stride - b.Width * nbands;
-                    int nOffset_out = stride_out - b_out.Width * 3;
-
+                    
                     int nWidth = b.Width * nbands;
-                    int nWidth_out = b_out.Width * 3;
-                    ComplexF[] data = new ComplexF[b.Width * b.Height];
+                    cimg = new ComplexImage(b.Width ,b.Height );
+
+                    ComplexF[] data = cimg.data;
+                    
                     int i;
-                    for (int y = 0; y < b_out.Height; ++y)
+                    for (int y = 0; y < b.Height; ++y)
                     {
-                        for (int x = 0; x < b_out.Width; ++x)
+                        for (int x = 0; x < b.Width; ++x)
                         {
                             i = x + y * bmData.Stride;
-                            if (nbands == 1) data[i ].Re = p[i];
+                            if (nbands == 1) data[i].Re = p[i];
                             else
                             {
                                 Color c = Color.FromArgb(p[i]);
@@ -967,44 +1024,148 @@ namespace ImProcLib
                         }
                     }
                     b.UnlockBits(bmData);
-                
-                    int offset = 0;
-                    for (int y = 0; y < b.Height; y++)
-                    {
-                        for (int x = 0; x < b.Width; x++)
-                        {
-                            if (((x + y) & 0x1) != 0)
-                            {
-                                data[offset] *= -1;
-                            }
-                            offset++;
-                        }
-                    }
-                    
+
+                    //int offset = 0;
+                    //for (int y = 0; y < b.Height; y++)
+                    //{
+                    //    for (int x = 0; x < b.Width; x++)
+                    //    {
+                    //        if (((x + y) & 0x1) != 0)
+                    //        {
+                    //            data[offset] *= -1;
+                    //        }
+                    //        offset++;
+                    //    }
+                    //}
+
                     Fourier.FFT2(data, b.Width, b.Height, FourierDirection.Forward);
 
-                //  cimage.FrequencySpace = true;
+                    //cimage.FrequencySpace = true;
+                    //for (i = 0; i < data.Length; i++)
+                    //{
+                    //    data[i] *= scale;
+                    //}
 
-                    for ( i = 0; i < data.Length; i++)
-                    {
-                        data[i] *= scale;
-                    }
+                }
+                return cimg;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show(e.Message);
+                return null;
+            }
 
+        }
+        public static Bitmap InverseFFT(ComplexImage cimg)
+        {
+            if (cimg == null)
+            {
+                return null;
+            }
+            Bitmap b = new Bitmap(cimg.Width, cimg.Height , PixelFormat.Format8bppIndexed);
+            float scale = 1f / (float)Math.Sqrt(b.Width * b.Height);
+            BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+                                           ImageLockMode.ReadWrite, b.PixelFormat);
+            int stride = bmData.Stride;
+            System.IntPtr Scan0 = bmData.Scan0;
+
+            int nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format32bppRgb)
+                nbands = 4;
+            if (b.PixelFormat == PixelFormat.Format24bppRgb)
+                nbands = 3;
+            if (b.PixelFormat == PixelFormat.Format8bppIndexed)
+                nbands = 1;
+            int val = 0;
+
+            try
+            {
+                unsafe
+                {
+                    byte* p = (byte*)(void*)Scan0;
+
+                    int nOffset = stride - b.Width * nbands;
+
+                    int nWidth = b.Width * nbands;
                     
+                    Fourier.FFT2(cimg.data , cimg.Width, cimg.Height, FourierDirection.Backward);
+                    int i = 0;
+                    for (int y = 0; y < b.Height; ++y)
+                    {
+                        for (int x = 0; x < b.Width; ++x)
+                        {
+                            i = x + y * bmData.Stride;
+                            //if (Math.Sqrt(cimg.data[i].Re * cimg.data[i].Re + cimg.data[i].Im * cimg.data[i].Im) > 255)
+                            //    p[i] = 255;
+                            //else
+                            //    p[i] = (byte)Math.Sqrt(cimg.data[i].Re * cimg.data[i].Re + cimg.data[i].Im * cimg.data[i].Im);
+                            p[i] = (byte) cimg.data[i].Re;
+
+                        }
+                    }
+                    //  cimage.FrequencySpace = true;
+
+                    //int offset = 0;
+                    //for (int y = 0; y < b.Height; y++)
+                    //{
+                    //    for (int x = 0; x < b.Width; x++)
+                    //    {
+                    //        if (((x + y) & 0x1) != 0)
+                    //        {
+                    //            data[offset] *= -1;
+                    //        }
+                    //        offset++;
+                    //    }
+                    //}
+
+                    for (i = 0; i < cimg.data.Length; i++)
+                    {
+                        cimg.data[i] *= scale;
+                    }
+                    b.UnlockBits(bmData);
+
+                }
+                return b;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show(e.Message);
+                return null;
+            }
+
+        }
+        public static Bitmap Complex2Bitmap(ComplexImage  cimg)
+        {
+            Bitmap b_out = new Bitmap(cimg.Width, cimg.Height, PixelFormat.Format8bppIndexed);
+            BitmapData bmData_out = b_out.LockBits(new Rectangle(0, 0, b_out.Width, b_out.Height),
+                    ImageLockMode.ReadWrite, b_out.PixelFormat);
+            int stride_out = bmData_out.Stride;
+            System.IntPtr ScanOut = bmData_out.Scan0;
+            //ComplexImage cimg = ForwardFFT(b);
+            try
+            {
+                unsafe
+                {
+                    byte* p_out = (byte*)(void*)ScanOut;
+
+                    int nOffset_out = stride_out - b_out.Width * 3;
+
+                    int nWidth_out = b_out.Width * 3;
+                    int i;
                     for (int y = 0; y < b_out.Height; ++y)
                     {
                         for (int x = 0; x < b_out.Width; ++x)
                         {
-                            i = x + y *bmData_out.Stride ;
-                            if (Math.Sqrt(data[i].Re * data[i].Re + data[i].Im + data[i].Im) > 255)
+                            i = x + y * bmData_out.Stride;
+                            if (Math.Sqrt(cimg.data[i].Re * cimg.data[i].Re + cimg.data[i].Im * cimg.data[i].Im) > 255)
                                 p_out[i] = 255;
-                            else 
-                                p_out[i] = (byte) Math.Sqrt (data[i].Re * data[i].Re + data[i].Im + data[i].Im);
+                            else
+                                p_out[i] = (byte)Math.Sqrt(cimg.data[i].Re * cimg.data[i].Re + cimg.data[i].Im * cimg.data[i].Im);
 
                         }
                     }
-                    b_out.UnlockBits(bmData_out);
                 }
+                b_out.UnlockBits(bmData_out);
                 return b_out;
             }
             catch (Exception e)
@@ -1033,7 +1194,7 @@ namespace ImProcLib
         public static bool HSobel(Bitmap b)
         {
             ConvMatrix m = new ConvMatrix();
-             m.BottomLeft = -1;
+            m.BottomLeft = -1;
             m.BottomMid = -2;
             m.BottomRight = -1;
             m.MidLeft = 0;
@@ -1046,11 +1207,11 @@ namespace ImProcLib
             m.Offset = 0;
             Conv3x3(b, m);
             return true;
-         }
+        }
         public static bool GausianBlur3x3(Bitmap b)
         {
             ConvMatrix blur = new ConvMatrix();
-           blur.BottomLeft = 1;
+            blur.BottomLeft = 1;
             blur.BottomMid = 2;
             blur.BottomRight = 1;
             blur.MidLeft = 2;
@@ -1136,8 +1297,8 @@ namespace ImProcLib
         {
             if (b_out == null)
             {
-              
-                return null ;
+
+                return null;
             }
             //Bitmap b_out = new Bitmap(b.Width, b.Height, PixelFormat.Format8bppIndexed);
             BitmapData bmData_out = b_out.LockBits(new Rectangle(0, 0, b_out.Width, b_out.Height),
@@ -1153,13 +1314,13 @@ namespace ImProcLib
                 unsafe
                 {
                     byte* p_out = (byte*)(void*)ScanOut;
-                    int nOffset_out = stride_out - b_out.Width ;
+                    int nOffset_out = stride_out - b_out.Width;
                     int nWidth_out = b_out.Width * 3;
-                    int pos =0;
+                    int pos = 0;
                     int i, top, bot;
-                    for (int y = 1; y < b_out.Height-1; y++)
+                    for (int y = 1; y < b_out.Height - 1; y++)
                     {
-                        for (int x = 1; x < b_out.Width-1; x++)
+                        for (int x = 1; x < b_out.Width - 1; x++)
                         {
                             i = x + y * bmData_out.Stride;
                             top = x + (y - 1) * bmData_out.Stride;
@@ -1176,7 +1337,7 @@ namespace ImProcLib
                                 while (p_out[pos] == 255)
                                 {
                                     Point pto = new Point();
-                                    
+
                                     p_out[pos] = 0;
                                     if (p_out[pos + 1] == 255)
                                     {
@@ -1247,7 +1408,7 @@ namespace ImProcLib
                                     list.Add(tramo);
                                 }
                             }
-                            
+
                         }//for x
                     }//for y
 
@@ -1260,7 +1421,7 @@ namespace ImProcLib
                 //    ArrayList contour = new ArrayList();
                 //    foreach (int n in t)
                 //    {
-                        
+
                 //        switch(n){
                 //            case 0:
                 //                p.X+=1;
@@ -1304,7 +1465,7 @@ namespace ImProcLib
                 //    contourlist.Add(contour);
 
                 //}
-                b_out .UnlockBits(bmData_out );
+                b_out.UnlockBits(bmData_out);
                 return list;
             }
             catch (Exception e)
@@ -1313,12 +1474,12 @@ namespace ImProcLib
                 return null;
             }
         }
-        public static Bitmap Scale(Bitmap b, int newheight,int newwidth)
+        public static Bitmap Scale(Bitmap b, int newheight, int newwidth)
         {
             // GDI+ still lies to us - the return format is BGR, NOT RGB. 
             //BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
             //   ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
-            Bitmap outb = new Bitmap(newwidth, newheight, b.PixelFormat );
+            Bitmap outb = new Bitmap(newwidth, newheight, b.PixelFormat);
 
             BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
                     ImageLockMode.ReadWrite, b.PixelFormat);
@@ -1354,11 +1515,11 @@ namespace ImProcLib
                     {
                         for (int x = 1; x < outb.Width - 1; ++x)
                         {
-                            int apos = y * strideOut  + x *nbandsOut ;
-                            int oldpos = ((y*b.Height /outb.Height) * stride + (x*b.Width /outb.Width )*nbands);
+                            int apos = y * strideOut + x * nbandsOut;
+                            int oldpos = ((y * b.Height / outb.Height) * stride + (x * b.Width / outb.Width) * nbands);
                             for (int band = 0; band < nbandsOut; band++)
                             {
-                                pout[apos + band] = p[ oldpos + band];
+                                pout[apos + band] = p[oldpos + band];
                             }
                             //p[0] = (byte)(255 - p[0]);
                             //++p;
@@ -1375,6 +1536,147 @@ namespace ImProcLib
                 return null;
             }
             b.UnlockBits(bmData);
+            outb.UnlockBits(bmDataOut);
+            return outb;
+        }
+        public static Bitmap Mosaic4(Bitmap q, Bitmap r, Bitmap s, Bitmap t)
+        {
+            // GDI+ still lies to us - the return format is BGR, NOT RGB. 
+            //BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height),
+            //   ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            Bitmap outb = new Bitmap(  q.Width +r.Width ,q.Height +t.Height , q.PixelFormat);
+            BitmapData qmData = q.LockBits(new Rectangle(0, 0, q.Width, q.Height),
+                    ImageLockMode.ReadWrite, q.PixelFormat);
+            int strideq = qmData.Stride;
+            System.IntPtr Scanq = qmData.Scan0;
+            
+            BitmapData rmData = r.LockBits(new Rectangle(0, 0,r.Width, r.Height),
+                    ImageLockMode.ReadWrite, r.PixelFormat);
+            int strider = rmData.Stride;
+            System.IntPtr Scanr = rmData.Scan0;
+            
+            BitmapData smData = s.LockBits(new Rectangle(0, 0, s.Width, s.Height),
+                    ImageLockMode.ReadWrite, s.PixelFormat);
+            int strides = smData.Stride;
+            System.IntPtr Scans = smData.Scan0;
+            
+            BitmapData tmData = t.LockBits(new Rectangle(0, 0, t.Width, t.Height),
+                    ImageLockMode.ReadWrite, t.PixelFormat);
+            int stridet = tmData.Stride;
+            System.IntPtr Scant = tmData.Scan0;
+
+            int qbands = 3;
+            if (q.PixelFormat == PixelFormat.Format24bppRgb)
+                qbands = 3;
+            if (q.PixelFormat == PixelFormat.Format32bppArgb)
+                qbands = 4;
+            if (q.PixelFormat == PixelFormat.Format8bppIndexed)
+                qbands = 1;
+            int rbands = 3;
+            if (r.PixelFormat == PixelFormat.Format24bppRgb)
+                rbands = 3;
+            if (r.PixelFormat == PixelFormat.Format32bppArgb)
+                rbands = 4;
+            if (r.PixelFormat == PixelFormat.Format8bppIndexed)
+                rbands = 1;
+            int sbands = 3;
+            if (s.PixelFormat == PixelFormat.Format24bppRgb)
+                sbands = 3;
+            if (s.PixelFormat == PixelFormat.Format32bppArgb)
+                sbands = 4;
+            if (s.PixelFormat == PixelFormat.Format8bppIndexed)
+                sbands = 1;
+            int tbands = 3;
+            if (t.PixelFormat == PixelFormat.Format24bppRgb)
+                tbands = 3;
+            if (t.PixelFormat == PixelFormat.Format32bppArgb)
+                tbands = 4;
+            if (t.PixelFormat == PixelFormat.Format8bppIndexed)
+                tbands = 1;
+
+            BitmapData bmDataOut = outb.LockBits(new Rectangle(0, 0, outb.Width, outb.Height),
+                    ImageLockMode.ReadWrite, outb.PixelFormat);
+            int strideOut = bmDataOut.Stride;
+            System.IntPtr OutScan0 = bmDataOut.Scan0;
+            int nbandsOut = 3;
+            if (outb.PixelFormat == PixelFormat.Format24bppRgb)
+                nbandsOut = 3;
+            if (outb.PixelFormat == PixelFormat.Format32bppArgb )
+                nbandsOut = 4;
+            if (outb.PixelFormat == PixelFormat.Format8bppIndexed)
+                nbandsOut = 1;
+
+            int c;
+            int nx, ny;
+            try
+            {
+                unsafe
+                {
+                    byte* pq = (byte*)(void*)Scanq;
+                    byte* pr = (byte*)(void*)Scanr;
+                    byte* ps = (byte*)(void*)Scans;
+                    byte* pt = (byte*)(void*)Scant;
+                    byte* pout = (byte*)(void*)OutScan0;
+                    //int nOffset = strideq - q.Width * qbands;
+                    //int nWidth = q.Width * qbands;
+                    //int nOffsetOut = strideOut - outb.Width;
+                    for (int y = 0; y < q.Height ; ++y)
+
+                    {
+                        for (int x = 0; x < q.Width; ++x)
+                        {
+
+                            int _qpos = y * strideq + x * qbands;
+                            int _rpos = y * strider + x * rbands;
+                            int _spos = y * strides + x * sbands;
+                            int _tpos = y * stridet + x * tbands;
+
+                            int qpos = y * strideOut + x * nbandsOut;
+                            int rpos = y * strideOut + (x+q.Width ) * nbandsOut;
+                            int spos = (y+q.Height ) * strideOut + (x+q.Width ) * nbandsOut;
+                            int tpos = ((y+q.Height-1  ) * strideOut) + (x * nbandsOut);
+                            for (int band = 0; band < nbandsOut; band++)
+                            {
+                                if (band < qbands)
+                                    pout[qpos + band] = pq[_qpos + band];
+                                else
+                                    pout[qpos + band] = 255;
+
+                                if (band < rbands ) 
+                                    pout[rpos + band] = pr[_rpos + band];
+                                else
+                                    pout[rpos + band] = 255;
+
+                                if (band < sbands) 
+                                    pout[spos + band] = ps[_spos + band];
+                                else
+                                    pout[spos + band] = 255;
+
+                                if (band < tbands) 
+                                    pout[tpos + band] = pt[_tpos + band];
+                                else
+                                    pout[tpos + band] = 255;
+
+                                
+                            }
+                            //p[0] = (byte)(255 - p[0]);
+                            //++p;
+                            //++pout;
+                        }
+                        //p += nOffset;
+                        //pout += nOffsetOut;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("error escribiendo" + e.Message + " bandas " + qbands + " bandas " + rbands + " bandas " + sbands + " bandas " + tbands);
+                return null;
+            }
+            q.UnlockBits(qmData);
+            r.UnlockBits(rmData);
+            s.UnlockBits(smData);
+            t.UnlockBits(tmData);
             outb.UnlockBits(bmDataOut);
             return outb;
         }
@@ -1414,11 +1716,11 @@ namespace ImProcLib
                     {
                         for (int x = 0; x < orig.Width; ++x)
                         {
-                            int apos = (y+yy) * astride + (x+xx) * anbands;
+                            int apos = (y + yy) * astride + (x + xx) * anbands;
                             int origpos = y * origstride + x * orignbands;
-                            for (int band = 0; band < orignbands ; band++)
+                            for (int band = 0; band < orignbands; band++)
                             {
-                                ap[apos + band] = (byte)(origp[origpos  + band]);
+                                ap[apos + band] = (byte)(origp[origpos + band]);
                             }
                         }
                     }
@@ -1430,8 +1732,8 @@ namespace ImProcLib
                 return false;
             }
             orig.UnlockBits(origmData);
-            dest.UnlockBits(amData );
-            return true;            
+            dest.UnlockBits(amData);
+            return true;
         }
     }//endclass
 

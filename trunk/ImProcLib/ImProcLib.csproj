@@ -58,6 +58,7 @@
     <Compile Include="Fourier.cs" />
     <Compile Include="FourierDirection.cs" />
     <Compile Include="ImageReader.cs" />
+    <Compile Include="ImageWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

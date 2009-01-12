@@ -39,28 +39,48 @@ namespace test
             f.ShowDialog();
             Bitmap b = ImProcLib.ImProc.LoadImage(f.FileName);
             Bitmap c = ImProcLib.ImProc.padToNext2Power(b);
-            //Bitmap c = ImProcLib.ImProc.Scale(b, 1024, 1024);
-            Bitmap b_out = ImProcLib.ImProc.ForwardFFT(c);
+            ImProcLib.ImProc.ComplexImage cimg = ImProcLib.ImProc.ForwardFFT(c);
             double factor;
             Bitmap gaus = ImProcLib.ImProc.Gausian(16, 2, out factor);
-            Bitmap biggaus = new Bitmap(b_out.Width, b_out.Height, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
-            ImProcLib.ImProc.Copy(gaus, biggaus, (int)(b_out.Width / 2.0 - (gaus.Width / 2.0)), (int)(b_out.Height / 2.0 - (gaus.Height / 2.0)));
-            
-            Bitmap fftgaus = ImProcLib.ImProc.ForwardFFT(biggaus);
+            Bitmap biggaus = new Bitmap(c.Width, c.Height, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+            ImProcLib.ImProc.Copy(gaus, biggaus, (int)(c.Width / 2.0 - (gaus.Width / 2.0)), (int)(c.Height / 2.0 - (gaus.Height / 2.0)));
+            ImProcLib.ImProc.ComplexImage cimaggaus = ImProcLib.ImProc.ForwardFFT(biggaus);
+            ImProcLib.ImProc.ComplexImage multiplicado = new ImProcLib.ImProc.ComplexImage(cimaggaus.Width, cimaggaus.Height);
+            for (int i = 0; i < cimaggaus.Width * cimaggaus.Height; i++)
+            {
+                multiplicado.data[i] = cimaggaus.data[i] * cimg.data[i];
+            }
+            Bitmap filtrad = ImProcLib.ImProc.InverseFFT(multiplicado);
             // check palette
-            System.Drawing.Imaging. ColorPalette cp = fftgaus.Palette;
-            System.Drawing.Color  cc;
+            System.Drawing.Imaging. ColorPalette cp = biggaus.Palette;
             // init palette
             for (int i = 0; i < 256; i++)
             {
                 cp.Entries[i] = Color.FromArgb(i, i, i);
             }
-
-            fftgaus.Palette = cp;
-
-            pictureBox1.Image = fftgaus;
+            filtrad.Palette = cp;
+            Bitmap bmult = ImProcLib.ImProc.Complex2Bitmap(multiplicado);
+            bmult.Palette = cp;
+            pictureBox1.Image =bmult;
             
-            
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog f = new System.Windows.Forms.OpenFileDialog();
+            f.ShowDialog();
+            Bitmap b = ImProcLib.ImProc.LoadImage(f.FileName);
+           
+            // check palette
+            System.Drawing.Imaging.ColorPalette cp = b.Palette;
+            // init palette
+            for (int i = 0; i < 256; i++)
+            {
+                cp.Entries[i] = Color.FromArgb(255-i, i, i);
+            }
+            b.Palette = cp;
+            b.Save("c:\\kk.bmp"  );
+            pictureBox1.Image = b;
         }
     }
 }
