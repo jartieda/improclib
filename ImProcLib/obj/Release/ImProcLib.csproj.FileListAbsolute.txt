@@ -8,3 +8,8 @@ C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\bin\Release\ImProcLib.pdb
 C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\obj\Release\ResolveAssemblyReference.cache
 C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\obj\Release\ImProcLib.dll
 C:\programas\pesca\ImProcLib\ImProcLib\ImProcLib\obj\Release\ImProcLib.pdb
+C:\programas\sandbox\deps\SndBoxImProcLib\ImProcLib\bin\Release\ImProcLib.dll
+C:\programas\sandbox\deps\SndBoxImProcLib\ImProcLib\bin\Release\ImProcLib.pdb
+C:\programas\sandbox\deps\SndBoxImProcLib\ImProcLib\obj\Release\ResolveAssemblyReference.cache
+C:\programas\sandbox\deps\SndBoxImProcLib\ImProcLib\obj\Release\ImProcLib.dll
+C:\programas\sandbox\deps\SndBoxImProcLib\ImProcLib\obj\Release\ImProcLib.pdb
